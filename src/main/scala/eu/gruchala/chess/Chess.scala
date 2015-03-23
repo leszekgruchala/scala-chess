@@ -2,33 +2,24 @@ package eu.gruchala.chess
 
 object Chess {
 
-  def combinations(rows: Int, cols: Int, definitions: Seq[String]): Set[Set[Piece]] = {
+  def combinations(rows: Int, cols: Int, definitions: Seq[String]): Set[Set[(Position, Piece)]] = {
     val cleanBoard: Set[Position] =
       (for {
         row <- 0 until rows
         col <- 0 until cols
       } yield Position(row, col)).toSet
 
-    def toType(kind: String)(position: Position): Piece = kind match {
-      case "K" => King(position)
-      case "R" => Rook(position)
-      case "Q" => Queen(position)
-      case "B" => Bishop(position)
-      case "N" => Knight(position)
-      case unknown => throw new IllegalStateException(s"Piece type $unknown is not supported")
-    }
-
-    def placePieces(defs: Seq[String], board: Set[Position], acc: Set[Piece]): Set[Set[Piece]] = defs match {
+    def placePieces(defs: Seq[String], board: Set[Position], acc: Set[(Position, Piece)]): Set[Set[(Position, Piece)]] = defs match {
       case Nil => Set(acc)
       case head :: tail =>
+        val piece = Piece(head)
         board
-          .map(toType(head))
-          .withFilter(piece => !acc.exists(usedPiece => piece.threatens(usedPiece.position)))
-          .flatMap(piece =>
+          .withFilter(position => !acc.exists(used => piece.threatens(position, used._1)))
+          .flatMap(position =>
             placePieces(
               tail,
-              board.filterNot(freePosition => piece.position == freePosition || piece.threatens(freePosition)),
-              acc + piece)
+              board.filterNot(freePosition => position == freePosition || piece.threatens(position, freePosition)),
+              acc + ((position, piece)))
           )
     }
 

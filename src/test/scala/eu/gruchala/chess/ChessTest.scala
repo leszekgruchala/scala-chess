@@ -2,14 +2,7 @@ package eu.gruchala.chess
 
 import org.scalatest.{WordSpec, Matchers}
 
-import scala.language.implicitConversions
-
-object Implicits {
-  implicit def tupleToPosition(pos: (Int, Int)): Position = Position(pos._1, pos._2)
-}
-
 class ChessTest extends WordSpec with Matchers {
-  import Implicits._
 
   "Chess game" when {
     "given board 0 x 0" should {
@@ -27,7 +20,7 @@ class ChessTest extends WordSpec with Matchers {
 
       }
       "return 1 unique board combinations with 1 Queen" in {
-        Chess.combinations(1, 1, List("Q")) shouldBe Set(Set(Queen(0, 0)))
+        Chess.combinations(1, 1, List("Q")) shouldBe Set(Set((Position(0, 0), Queen)))
       }
     }
 
@@ -37,10 +30,10 @@ class ChessTest extends WordSpec with Matchers {
 
         combinations should have size 4
         combinations shouldBe Set(
-          Set(King((0, 0)), King((2, 0)), Rook((1, 2))),
-          Set(King((0, 0)), King((0, 2)), Rook((2, 1))),
-          Set(King((0, 2)), King((2, 2)), Rook((1, 0))),
-          Set(King((2, 0)), King((2, 2)), Rook((0, 1)))
+          Set((Position(0, 0), King), (Position(2, 0), King), (Position(1, 2), Rook)),
+          Set((Position(0, 0), King), (Position(0, 2), King), (Position(2, 1), Rook)),
+          Set((Position(0, 2), King), (Position(2, 2), King), (Position(1, 0), Rook)),
+          Set((Position(2, 0), King), (Position(2, 2), King), (Position(0, 1), Rook))
         )
       }
     }
@@ -51,18 +44,7 @@ class ChessTest extends WordSpec with Matchers {
       }
 
       "return 8 unique board combinations with 2 Rooks and 4 Knights" in {
-        val combinations = Chess.combinations(4, 4, List("R", "R", "N", "N", "N", "N"))
-
-        combinations should have size 8
-        combinations shouldBe Set(
-          Set(Knight((3, 2)), Rook((0, 1)), Rook((2, 3)), Knight((1, 2)), Knight((3, 0)), Knight((1, 0))),
-          Set(Knight((3, 3)), Rook((2, 2)), Knight((1, 3)), Knight((3, 1)), Rook((0, 0)), Knight((1, 1))),
-          Set(Rook((3, 3)), Knight((2, 2)), Knight((0, 0)), Knight((0, 2)), Rook((1, 1)), Knight((2, 0))),
-          Set(Knight((3, 3)), Knight((1, 3)), Knight((3, 1)), Rook((0, 2)), Knight((1, 1)), Rook((2, 0))),
-          Set(Knight((0, 1)), Knight((2, 3)), Knight((2, 1)), Knight((0, 3)), Rook((1, 2)), Rook((3, 0))),
-          Set(Rook((3, 2)), Knight((0, 1)), Knight((2, 3)), Knight((2, 1)), Knight((0, 3)), Rook((1, 0))),
-          Set(Knight((3, 2)), Rook((2, 1)), Rook((0, 3)), Knight((1, 2)), Knight((3, 0)), Knight((1, 0))),
-          Set(Knight((2, 2)), Rook((1, 3)), Rook((3, 1)), Knight((0, 0)), Knight((0, 2)), Knight((2, 0))))
+        Chess.combinations(4, 4, List("R", "R", "N", "N", "N", "N")) should have size 8
       }
     }
   }
